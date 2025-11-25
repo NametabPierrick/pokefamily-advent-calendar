@@ -31,7 +31,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-.snow-layer {
+/* .snow-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -52,7 +52,7 @@ body {
   mix-blend-mode: screen;
   animation: snow-fall var(--duration, 16s) linear infinite;
   animation-delay: var(--delay, 0s);
-}
+} */
 
 @keyframes snow-fall {
   0% {
@@ -133,7 +133,7 @@ header {
 .card-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
 }
 
 .card {
@@ -562,6 +562,10 @@ header {
   header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
 
   .lightbox__body {
