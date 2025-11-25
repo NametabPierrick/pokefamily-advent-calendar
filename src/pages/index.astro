@@ -9,25 +9,29 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
 >
   <header>
     <div class="brand">
-      <div class="crest">⚡️</div>
+      <div class="crest">🎁</div>
       <div>
-        <h1>POKEFAMILY - Calendrier de l'avent</h1>
+        <h1>Calendrier de l'avent de la Pokéfamily</h1>
       </div>
     </div>
     <div class="badge">1 → {TOTAL_DAYS} décembre</div>
   </header>
 
   <p class="intro">
-    Chaque membre a sa propre aventure LEGO Harry Potter. Clique sur ton nom
-    pour voir les pages d'instructions qui se débloquent jour après jour (dates
-    réelles de décembre, jours précédents visibles).
+    Chaque membre de la famille a son calendrier personnel. Clique sur ton nom
+    pour voir les surprises qui se débloquent jour après jour.
   </p>
+
+  <div class="hero">
+    <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
+  </div>
 
   <div class="card-grid">
     {
       MEMBERS.map((member) => (
         <a class="card" href={`/${member.id}`} data-member={member.id}>
           <h2>{member.name}</h2>
+          <span class="member-name-outline">{member.name}</span>
           <p class="muted">Tous les jours une surprise !</p>
           <span class="btn card-btn">
             Voir le calendrier de l'avent
@@ -37,4 +41,66 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
       ))
     }
   </div>
+
+  <script>
+    const search = new URLSearchParams(window.location.search);
+    const debug = search.get("debugDate");
+
+    function parseDebugDate(value) {
+      if (!value) return null;
+      const parts = value.split("-").map((n) => Number(n));
+      if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+      const [year, month, day] = parts;
+      const nowTime = new Date();
+      return new Date(
+        year,
+        month - 1,
+        day,
+        nowTime.getHours(),
+        nowTime.getMinutes(),
+        nowTime.getSeconds(),
+        nowTime.getMilliseconds(),
+      );
+    }
+
+    const debugDate = parseDebugDate(debug);
+    const baseDate = debugDate ?? new Date();
+    const seasonYear = baseDate.getFullYear();
+
+    const countdownNode = document.querySelector("[data-countdown]");
+    if (countdownNode) {
+      const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
+      const baseMs = baseDate.getTime();
+      const startReal = Date.now();
+      const pad2 = (n) => String(n).padStart(2, "0");
+      const useDebug = !!debugDate;
+      const getNowMs = () =>
+        useDebug ? baseMs + (Date.now() - startReal) : Date.now();
+      const fmt = (value, unit) =>
+        `<span class="count-value">${value}</span><span class="count-unit">${unit}</span>`;
+
+      const updateCountdown = () => {
+        const nowMs = getNowMs();
+        const diff = target - nowMs;
+        if (diff <= 0) {
+          countdownNode.innerHTML = `<span class="count-number">Joyeux Noël !</span>`;
+          return;
+        }
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        countdownNode.innerHTML = `
+          <span class="count-number">
+            ${fmt(days, "j")} ${fmt(pad2(hours), "h")} ${fmt(pad2(minutes), "m")} ${fmt(pad2(seconds), "s")}
+          </span>
+          <span class="count-label">avant Noël</span>
+        `;
+      };
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+  </script>
 </BaseLayout>

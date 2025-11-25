@@ -36,7 +36,7 @@ const currentYear = new Date().getFullYear();
     </header>
 
     <div class="hero">
-      <h2 data-countdown>Noël approche à grand pas !</h2>
+      <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
       <p></p>
       <!-- Astuce dev: ajouter ?debugDate=2025-12-05 ou &showDebug=1 pour tester les jours et voir le panneau debug. -->
       <div class="notice" data-debug-panel style="display: none;"></div>
@@ -68,7 +68,7 @@ const currentYear = new Date().getFullYear();
                 Patience, attends le {formatFrenchDate(range.day, currentYear)}.
               </p>
               <div data-unlocked-copy style="display: none;">
-                <p class="muted">C'est le grand jour !</p>
+                <p class="muted">Ouvre vite !</p>
                 <button
                   class="btn"
                   type="button"
@@ -220,7 +220,7 @@ const currentYear = new Date().getFullYear();
           const nowMs = getNowMs();
           const diff = target - nowMs;
           if (diff <= 0) {
-            countdownNode.textContent = "Joyeux Noël !";
+            countdownNode.innerHTML = `<span class="count-number">Joyeux Noël !</span>`;
             return;
           }
           const totalSeconds = Math.floor(diff / 1000);
@@ -228,10 +228,15 @@ const currentYear = new Date().getFullYear();
           const hours = Math.floor((totalSeconds % 86400) / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const short = `${days}j ${pad2(hours)}h ${pad2(minutes)}m ${pad2(
-            seconds,
-          )}s avant Noël`;
-          countdownNode.textContent = short;
+          const short = `${days}j ${pad2(hours)}h ${pad2(minutes)}m ${pad2(seconds)}s`;
+          const fmt = (value, unit) =>
+            `<span class="count-value">${value}</span><span class="count-unit">${unit}</span>`;
+          countdownNode.innerHTML = `
+            <span class="count-number">
+              ${fmt(days, "j")} ${fmt(pad2(hours), "h")} ${fmt(pad2(minutes), "m")} ${fmt(pad2(seconds), "s")}
+            </span>
+            <span class="count-label">avant Noël 🎄🎁✨</span>
+          `;
         };
         updateCountdown();
         setInterval(updateCountdown, 1000);

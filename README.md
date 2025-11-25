@@ -1,6 +1,6 @@
 ## Pokefamily Advent Calendar (Astro)
 
-Astro site for a family LEGO Harry Potter advent calendar. Each person has a dedicated page that unlocks their daily instruction pages based on real-world dates (1–24 décembre). Past days stay visible.
+Astro site for a family  advent calendar. Each person has a dedicated page that unlocks their daily instruction pages based on real-world dates (1–24 décembre). Past days stay visible.
 
 ### Dev quickstart
 
@@ -11,7 +11,7 @@ npm run dev
 
 If you need to fake the date while developing, append `?debugDate=2024-12-05` (YYYY-MM-DD) to any member page URL.
 
-### Configure the LEGO sets
+### Configure the  sets
 
 Edit `src/data/members.ts`:
 - `totalPages`: total number of instruction pages for that person.
