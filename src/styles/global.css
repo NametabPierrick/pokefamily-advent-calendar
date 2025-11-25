@@ -191,6 +191,7 @@ header {
 }
 
 .day {
+  overflow: hidden;
   padding: 1rem 1.1rem;
   border-radius: 16px;
   border: 1px solid var(--border);
@@ -198,6 +199,15 @@ header {
   position: relative;
   isolation: isolate;
   transition: opacity 150ms ease, filter 150ms ease, transform 120ms ease;
+}
+
+.day-number-bg {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 20rem;
+  position: absolute;
+  right: -5%;
+  opacity: 0.05;
+  bottom: -2rem;
 }
 
 .day::after {
@@ -533,9 +543,26 @@ header {
 
   .lightbox__body {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    position: relative;
+    padding-bottom: 64px;
   }
 
   .lightbox__slides {
     height: 60vh;
+  }
+
+  .lightbox__body .nav-btn {
+    position: absolute;
+    bottom: 14px;
+    transform: translateX(-50%);
+  }
+
+  .lightbox__body [data-prev] {
+    left: 25%;
+  }
+
+  .lightbox__body [data-next] {
+    left: 75%;
   }
 }

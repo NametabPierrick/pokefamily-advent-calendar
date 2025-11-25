@@ -54,6 +54,7 @@ const currentYear = new Date().getFullYear();
             >
               <div class="heading">
                 <strong>{range.day}</strong>
+                <span class="day-number-bg">{range.day}</span>
                 <span class="pill locked" data-pill aria-label="Verrouillé">
                   🔒
                 </span>
@@ -95,7 +96,7 @@ const currentYear = new Date().getFullYear();
       <div class="lightbox__dialog" role="dialog" aria-modal="true">
         <div class="lightbox__header">
           <div>
-            <p class="muted" data-lightbox-title>Instructions</p>
+            <!-- <p class="muted" data-lightbox-title>Instructions</p> -->
           </div>
           <button
             class="icon-btn"
@@ -120,7 +121,7 @@ const currentYear = new Date().getFullYear();
           >
         </div>
         <div class="lightbox__footer">
-          <span data-counter>Page 1</span>
+          <span data-counter></span>
         </div>
       </div>
     </div>
@@ -282,7 +283,7 @@ const currentYear = new Date().getFullYear();
       const nextBtn = lightbox?.querySelector("[data-next]");
       let currentIndex = 0;
 
-      function openLightbox(images, label) {
+      function openLightbox(images) {
         if (!lightbox || !slides) return;
         slides.innerHTML = "";
         images.forEach((src, idx) => {
@@ -290,7 +291,7 @@ const currentYear = new Date().getFullYear();
           img.loading = "eager";
           img.decoding = "async";
           img.src = src;
-          img.alt = `${label} - page ${idx + 1}`;
+          img.alt = `Page ${idx + 1}`;
           const frame = document.createElement("div");
           frame.className = "slide";
           frame.appendChild(img);
@@ -298,7 +299,7 @@ const currentYear = new Date().getFullYear();
         });
         currentIndex = 0;
         updateSlides();
-        if (titleNode) titleNode.textContent = label;
+        if (titleNode) titleNode.textContent = "Instructions";
         lightbox.classList.add("is-open");
         document.body.style.overflow = "hidden";
       }
@@ -361,8 +362,7 @@ const currentYear = new Date().getFullYear();
           for (let page = start; page <= end; page++) {
             images.push(`${baseDir}/${prefix}${pad(page)}.jpg`);
           }
-          const label = `Pages ${start} à ${end}`;
-          openLightbox(images, label);
+          openLightbox(images);
         });
       });
 
