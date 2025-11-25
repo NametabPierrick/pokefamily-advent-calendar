@@ -21,39 +21,8 @@ const {
     <meta name="description" content={description} />
   </head>
   <body>
-    <div class="snow-layer" aria-hidden="true"></div>
     <div class="page-shell">
       <slot />
     </div>
-    <script>
-      (() => {
-        const layer = document.querySelector('.snow-layer');
-        if (!layer) return;
-        const count = 200;
-        const randomRange = (min, max) => Math.random() * (max - min) + min;
-        for (let i = 0; i < count; i++) {
-          const flake = document.createElement('div');
-          flake.className = 'snow';
-          const startX = randomRange(0, 100);
-          const offset = randomRange(-25, 25);
-          const endX = startX + offset;
-          const midX = startX + offset / 2;
-          const size = randomRange(4, 12);
-          const opacity = randomRange(0.35, 0.95);
-          const duration = randomRange(10, 24);
-          const delay = -randomRange(0, duration); // start some flakes mid-air
-          const scale = randomRange(0.6, 1.2);
-          flake.style.setProperty('--x-start', `${startX}vw`);
-          flake.style.setProperty('--x-mid', `${midX}vw`);
-          flake.style.setProperty('--x-end', `${endX}vw`);
-          flake.style.setProperty('--size', `${size}px`);
-          flake.style.setProperty('--opacity', opacity.toString());
-          flake.style.setProperty('--duration', `${duration}s`);
-          flake.style.setProperty('--delay', `${delay}s`);
-          flake.style.setProperty('--scale', scale.toString());
-          layer.appendChild(flake);
-        }
-      })();
-    </script>
   </body>
 </html>
