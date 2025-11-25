@@ -1,0 +1,376 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { MEMBERS, TOTAL_DAYS, type AdventMember } from "../data/members";
+import { splitIntoDailyRanges, formatFrenchDate } from "../utils/calendar";
+
+export function getStaticPaths() {
+  return MEMBERS.map((member) => ({
+    params: { member: member.id },
+    props: { member },
+  }));
+}
+
+type Props = {
+  member: AdventMember;
+};
+
+const { member } = Astro.props as Props;
+const ranges = splitIntoDailyRanges(member.totalPages, TOTAL_DAYS);
+const currentYear = new Date().getFullYear();
+---
+
+<BaseLayout
+  title={`Calendrier de ${member.name}`}
+  description={`Pages quotidiennes pour ${member.setName}.`}
+>
+  <div data-page-root data-total-days={TOTAL_DAYS}>
+    <a class="nav-back" href="/">← Retour aux choix</a>
+
+    <header>
+      <div class="brand">
+        <div>
+          <h1>{member.name}</h1>
+        </div>
+      </div>
+      <div class="badge" data-badge>Jour ?/?</div>
+    </header>
+
+    <div class="hero">
+      <h2 data-countdown>Noël approche à grand pas !</h2>
+      <p></p>
+      <!-- Astuce dev: ajouter ?debugDate=2025-12-05 ou &showDebug=1 pour tester les jours et voir le panneau debug. -->
+      <div class="notice" data-debug-panel style="display: none;"></div>
+    </div>
+
+    <div class="days-grid">
+      {
+        ranges.map((range) => {
+          return (
+            <div
+              class="day"
+              id={`day-${range.day}`}
+              data-day-card
+              data-day={range.day}
+            >
+              <div class="heading">
+                <strong>{range.day}</strong>
+                <span class="pill locked" data-pill aria-label="Verrouillé">
+                  🔒
+                </span>
+              </div>
+              {/* <div class="muted" data-date>
+                {formatFrenchDate(range.day, currentYear)}
+              </div> */}
+              {/* <p class="range">
+                Pages {range.startPage} → {range.endPage}
+              </p> */}
+              <p class="muted" data-locked-copy>
+                Patience, attends le {formatFrenchDate(range.day, currentYear)}.
+              </p>
+              <div data-unlocked-copy style="display: none;">
+                <p class="muted">C'est le grand jour !</p>
+                <button
+                  class="btn"
+                  type="button"
+                  data-open-lightbox
+                  data-start={range.startPage}
+                  data-end={range.endPage}
+                  data-member={member.id}
+                  data-dir={member.imageDir || ""}
+                  data-prefix={member.imagePrefix || "page-"}
+                  data-pad={member.imagePadLength || 3}
+                  aria-label={`Voir les pages ${range.startPage} à ${range.endPage}`}
+                >
+                  Voir les étapes
+                </button>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <div class="lightbox" data-lightbox>
+      <div class="lightbox__backdrop" data-close-lightbox></div>
+      <div class="lightbox__dialog" role="dialog" aria-modal="true">
+        <div class="lightbox__header">
+          <div>
+            <p class="muted" data-lightbox-title>Instructions</p>
+          </div>
+          <button
+            class="icon-btn"
+            type="button"
+            data-close-lightbox
+            aria-label="Fermer">✕</button
+          >
+        </div>
+        <div class="lightbox__body">
+          <button
+            class="nav-btn"
+            type="button"
+            data-prev
+            aria-label="Page précédente">←</button
+          >
+          <div class="lightbox__slides" data-slides></div>
+          <button
+            class="nav-btn"
+            type="button"
+            data-next
+            aria-label="Page suivante">→</button
+          >
+        </div>
+        <div class="lightbox__footer">
+          <span data-counter>Page 1</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const root = document.querySelector("[data-page-root]");
+      const totalDays = Number(root?.dataset.totalDays || 24);
+      const search = new URLSearchParams(window.location.search);
+      const debug = search.get("debugDate");
+
+      function parseDebugDate(value) {
+        if (!value) return null;
+        const parts = value.split("-").map((n) => Number(n));
+        if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+        const [year, month, day] = parts;
+        const nowTime = new Date();
+        // Keep the current time-of-day so countdown matches the real clock when using debugDate.
+        return new Date(
+          year,
+          month - 1,
+          day,
+          nowTime.getHours(),
+          nowTime.getMinutes(),
+          nowTime.getSeconds(),
+          nowTime.getMilliseconds(),
+        );
+      }
+
+      const debugDate = parseDebugDate(debug);
+      const now = debugDate ?? new Date();
+      const seasonYear = now.getFullYear();
+      const start = new Date(seasonYear, 11, 1);
+      const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
+
+      let openDay = 0;
+      if (now < start) {
+        openDay = 0;
+      } else if (now > end) {
+        openDay = totalDays;
+      } else if (now.getMonth() === 11) {
+        openDay = Math.min(totalDays, now.getDate());
+      }
+
+      const badge = document.querySelector("[data-badge]");
+      if (badge) {
+        const isDebug = !!debugDate;
+        const label =
+          openDay > 0
+            ? `Jour ${openDay}/${totalDays}`
+            : "En attente du 1er décembre";
+        badge.textContent = isDebug ? `${label} (debug)` : label;
+      }
+
+      // Debug panel intentionally disabled; set showDebug=true if you need to re-enable.
+      const debugPanel = document.querySelector("[data-debug-panel]");
+      const showDebug =
+        false && debugPanel && (debug || search.has("showDebug"));
+      if (showDebug && debugPanel) {
+        debugPanel.style.display = "block";
+        debugPanel.innerHTML = `
+          <strong>Debug</strong><br />
+          now: ${now.toString()}<br />
+          debugDate param: ${debug || "n/a"}<br />
+          openDay: ${openDay}<br />
+          seasonYear: ${seasonYear}<br />
+          start: ${start.toString()}<br />
+          end: ${end.toString()}
+        `;
+        console.info("[cal-debug]", {
+          now,
+          debug,
+          openDay,
+          seasonYear,
+          start,
+          end,
+          totalDays,
+        });
+      }
+
+      const formatter = new Intl.DateTimeFormat("fr-FR", {
+        day: "numeric",
+        month: "long",
+      });
+
+      // Live countdown until 25 Dec (days + HH:MM:SS), based on actual clock or debugDate baseline.
+      const countdownNode = document.querySelector("[data-countdown]");
+      if (countdownNode) {
+        const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
+        const baseMs = (debugDate ?? new Date()).getTime();
+        const startReal = Date.now();
+        const pad2 = (n) => String(n).padStart(2, "0");
+        const useDebug = !!debugDate;
+        const getNowMs = () =>
+          useDebug ? baseMs + (Date.now() - startReal) : Date.now();
+
+        const updateCountdown = () => {
+          const nowMs = getNowMs();
+          const diff = target - nowMs;
+          if (diff <= 0) {
+            countdownNode.textContent = "Joyeux Noël !";
+            return;
+          }
+          const totalSeconds = Math.floor(diff / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          const short = `${days}j ${pad2(hours)}h ${pad2(minutes)}m ${pad2(
+            seconds,
+          )}s avant Noël`;
+          countdownNode.textContent = short;
+        };
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      }
+      document.querySelectorAll("[data-day-card]").forEach((card) => {
+        const day = Number(card.dataset.day);
+        const dateNode = card.querySelector("[data-date]");
+        if (dateNode) {
+          dateNode.textContent = formatter.format(
+            new Date(seasonYear, 11, day),
+          );
+        }
+
+        const unlocked = day <= openDay;
+        card.classList.toggle("unlocked", unlocked);
+        card.classList.toggle("locked", !unlocked);
+
+        const pill = card.querySelector("[data-pill]");
+        if (pill) {
+          pill.textContent = unlocked ? "Débloqué" : "🔒";
+          pill.setAttribute("aria-label", unlocked ? "Débloqué" : "Verrouillé");
+          pill.className = `pill ${unlocked ? "ok" : "locked"}`;
+        }
+
+        const lockedCopy = card.querySelector("[data-locked-copy]");
+        const unlockedCopy = card.querySelector("[data-unlocked-copy]");
+        if (lockedCopy) lockedCopy.style.display = unlocked ? "none" : "block";
+        if (unlockedCopy)
+          unlockedCopy.style.display = unlocked ? "block" : "none";
+
+        const btn = card.querySelector("[data-open-lightbox]");
+        if (btn) {
+          btn.style.display = unlocked ? "inline-flex" : "none";
+        }
+      });
+
+      // Lightbox logic
+      const lightbox = document.querySelector("[data-lightbox]");
+      const slides = lightbox?.querySelector("[data-slides]");
+      const titleNode = lightbox?.querySelector("[data-lightbox-title]");
+      const counter = lightbox?.querySelector("[data-counter]");
+      const prevBtn = lightbox?.querySelector("[data-prev]");
+      const nextBtn = lightbox?.querySelector("[data-next]");
+      let currentIndex = 0;
+
+      function openLightbox(images, label) {
+        if (!lightbox || !slides) return;
+        slides.innerHTML = "";
+        images.forEach((src, idx) => {
+          const img = document.createElement("img");
+          img.loading = "eager";
+          img.decoding = "async";
+          img.src = src;
+          img.alt = `${label} - page ${idx + 1}`;
+          const frame = document.createElement("div");
+          frame.className = "slide";
+          frame.appendChild(img);
+          slides.appendChild(frame);
+        });
+        currentIndex = 0;
+        updateSlides();
+        if (titleNode) titleNode.textContent = label;
+        lightbox.classList.add("is-open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        if (!lightbox || !slides) return;
+        lightbox.classList.remove("is-open");
+        document.body.style.overflow = "";
+        slides.innerHTML = "";
+      }
+
+      function updateSlides() {
+        if (!slides) return;
+        const frames = Array.from(slides.children);
+        frames.forEach((node, idx) => {
+          node.classList.toggle("active", idx === currentIndex);
+        });
+        if (counter)
+          counter.textContent = `Page ${currentIndex + 1} / ${frames.length}`;
+        if (prevBtn) prevBtn.disabled = currentIndex === 0;
+        if (nextBtn) nextBtn.disabled = currentIndex === frames.length - 1;
+      }
+
+      prevBtn?.addEventListener("click", () => {
+        const frames = slides ? slides.children.length : 0;
+        if (frames && currentIndex > 0) {
+          currentIndex -= 1;
+          updateSlides();
+        }
+      });
+
+      nextBtn?.addEventListener("click", () => {
+        const frames = slides ? slides.children.length : 0;
+        if (frames && currentIndex < frames - 1) {
+          currentIndex += 1;
+          updateSlides();
+        }
+      });
+
+      lightbox?.addEventListener("click", (evt) => {
+        if ((evt.target as HTMLElement).dataset.closeLightbox !== undefined) {
+          closeLightbox();
+        }
+      });
+      lightbox
+        ?.querySelectorAll("[data-close-lightbox]")
+        .forEach((btn) => btn.addEventListener("click", closeLightbox));
+
+      document.querySelectorAll("[data-open-lightbox]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const start = Number(btn.dataset.start);
+          const end = Number(btn.dataset.end);
+          const memberId = btn.dataset.member;
+          const dir = btn.dataset.dir || "";
+          const prefix = btn.dataset.prefix || "page-";
+          const padLength = Number(btn.dataset.pad || 3);
+          const pad = (n) => String(n).padStart(padLength, "0");
+          const baseDir = dir || `/pages/${memberId}`;
+          const images = [];
+          for (let page = start; page <= end; page++) {
+            images.push(`${baseDir}/${prefix}${pad(page)}.jpg`);
+          }
+          const label = `Pages ${start} à ${end}`;
+          openLightbox(images, label);
+        });
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!lightbox?.classList.contains("is-open")) return;
+        if (e.key === "Escape") {
+          closeLightbox();
+        } else if (e.key === "ArrowLeft") {
+          prevBtn?.click();
+        } else if (e.key === "ArrowRight") {
+          nextBtn?.click();
+        }
+      });
+    </script>
+  </div>
+</BaseLayout>

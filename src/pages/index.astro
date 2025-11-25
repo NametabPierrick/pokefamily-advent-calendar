@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { MEMBERS, TOTAL_DAYS } from "../data/members";
+---
+
+<BaseLayout
+  title="Calendrier de l'avent"
+  description="Sélectionne ton personnage pour ouvrir les pages du jour."
+>
+  <header>
+    <div class="brand">
+      <div class="crest">⚡️</div>
+      <div>
+        <h1>POKEFAMILY - Calendrier de l'avent</h1>
+      </div>
+    </div>
+    <div class="badge">1 → {TOTAL_DAYS} décembre</div>
+  </header>
+
+  <p class="intro">
+    Chaque membre a sa propre aventure LEGO Harry Potter. Clique sur ton nom
+    pour voir les pages d'instructions qui se débloquent jour après jour (dates
+    réelles de décembre, jours précédents visibles).
+  </p>
+
+  <div class="card-grid">
+    {
+      MEMBERS.map((member) => (
+        <a class="card" href={`/${member.id}`} data-member={member.id}>
+          <h2>{member.name}</h2>
+          <p class="muted">Tous les jours une surprise !</p>
+          <span class="btn card-btn">
+            Voir le calendrier de l'avent
+            <span aria-hidden="true">↗︎</span>
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>
