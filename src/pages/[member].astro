@@ -37,7 +37,6 @@ const currentYear = new Date().getFullYear();
 
     <div class="hero">
       <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
-      <p></p>
       <!-- Astuce dev: ajouter ?debugDate=2025-12-05 ou &showDebug=1 pour tester les jours et voir le panneau debug. -->
       <div class="notice" data-debug-panel style="display: none;"></div>
     </div>
@@ -68,6 +67,11 @@ const currentYear = new Date().getFullYear();
               <p class="muted" data-locked-copy>
                 Patience, attends le {formatFrenchDate(range.day, currentYear)}.
               </p>
+              <p
+                class="muted next-timer"
+                data-next-timer
+                style="display: none;"
+              />
               <div data-unlocked-copy style="display: none;">
                 <p class="muted">Ouvre vite !</p>
                 <button
@@ -151,7 +155,15 @@ const currentYear = new Date().getFullYear();
       }
 
       const debugDate = parseDebugDate(debug);
-      const now = debugDate ?? new Date();
+      const baseDate = debugDate ?? new Date();
+      const baseMs = baseDate.getTime();
+      const startReal = Date.now();
+      const useDebug = !!debugDate;
+      const getNowMs = () =>
+        useDebug ? baseMs + (Date.now() - startReal) : Date.now();
+      const pad2 = (n) => String(n).padStart(2, "0");
+
+      const now = new Date(getNowMs());
       const seasonYear = now.getFullYear();
       const start = new Date(seasonYear, 11, 1);
       const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
@@ -206,16 +218,16 @@ const currentYear = new Date().getFullYear();
         month: "long",
       });
 
+      const nextDay = openDay < totalDays ? openDay + 1 : null;
+      const nextTarget =
+        nextDay !== null
+          ? new Date(seasonYear, 11, nextDay, 0, 0, 0, 0).getTime()
+          : null;
+
       // Live countdown until 25 Dec (days + HH:MM:SS), based on actual clock or debugDate baseline.
       const countdownNode = document.querySelector("[data-countdown]");
       if (countdownNode) {
         const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
-        const baseMs = (debugDate ?? new Date()).getTime();
-        const startReal = Date.now();
-        const pad2 = (n) => String(n).padStart(2, "0");
-        const useDebug = !!debugDate;
-        const getNowMs = () =>
-          useDebug ? baseMs + (Date.now() - startReal) : Date.now();
 
         const updateCountdown = () => {
           const nowMs = getNowMs();
@@ -229,7 +241,6 @@ const currentYear = new Date().getFullYear();
           const hours = Math.floor((totalSeconds % 86400) / 3600);
           const minutes = Math.floor((totalSeconds % 3600) / 60);
           const seconds = totalSeconds % 60;
-          const short = `${days}j ${pad2(hours)}h ${pad2(minutes)}m ${pad2(seconds)}s`;
           const fmt = (value, unit) =>
             `<span class="count-value">${value}</span><span class="count-unit">${unit}</span>`;
           countdownNode.innerHTML = `
@@ -242,6 +253,40 @@ const currentYear = new Date().getFullYear();
         updateCountdown();
         setInterval(updateCountdown, 1000);
       }
+
+      const nextCountdownNode = document.querySelector("[data-next-countdown]");
+      if (nextCountdownNode) {
+        let targetNext = null;
+        if (openDay < totalDays) {
+          const nextDay = openDay + 1;
+          const targetDate =
+            now < start ? start : new Date(seasonYear, 11, nextDay, 0, 0, 0, 0);
+          targetNext = targetDate.getTime();
+        }
+
+        const updateNext = () => {
+          if (targetNext === null) {
+            nextCountdownNode.textContent = "Toutes les cases sont ouvertes !";
+            return;
+          }
+          const diff = targetNext - getNowMs();
+          if (diff <= 0) {
+            nextCountdownNode.textContent = "La prochaine case est prête !";
+            return;
+          }
+          const totalSeconds = Math.floor(diff / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          nextCountdownNode.textContent = `Prochaine case dans ${days}j ${pad2(
+            hours,
+          )}h ${pad2(minutes)}m ${pad2(seconds)}s`;
+        };
+        updateNext();
+        setInterval(updateNext, 1000);
+      }
+
       document.querySelectorAll("[data-day-card]").forEach((card) => {
         const day = Number(card.dataset.day);
         const dateNode = card.querySelector("[data-date]");
@@ -267,6 +312,32 @@ const currentYear = new Date().getFullYear();
         if (lockedCopy) lockedCopy.style.display = unlocked ? "none" : "block";
         if (unlockedCopy)
           unlockedCopy.style.display = unlocked ? "block" : "none";
+
+        const nextTimer = card.querySelector("[data-next-timer]");
+        if (!unlocked && nextTimer) {
+          if (nextDay !== null && day === nextDay && nextTarget) {
+            nextTimer.style.display = "block";
+            const updateCardTimer = () => {
+              const diff = nextTarget - getNowMs();
+              if (diff <= 0) {
+                nextTimer.textContent = "La prochaine case est prête !";
+                return;
+              }
+              const totalSeconds = Math.floor(diff / 1000);
+              const days = Math.floor(totalSeconds / 86400);
+              const hours = Math.floor((totalSeconds % 86400) / 3600);
+              const minutes = Math.floor((totalSeconds % 3600) / 60);
+              const seconds = totalSeconds % 60;
+              nextTimer.textContent = `${days}j ${pad2(
+                hours,
+              )}h ${pad2(minutes)}m ${pad2(seconds)}s`;
+            };
+            updateCardTimer();
+            setInterval(updateCardTimer, 1000);
+          } else {
+            nextTimer.style.display = "none";
+          }
+        }
 
         const btn = card.querySelector("[data-open-lightbox]");
         if (btn) {

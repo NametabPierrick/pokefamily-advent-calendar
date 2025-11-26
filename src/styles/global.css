@@ -208,6 +208,7 @@ header {
   right: -5%;
   opacity: 0.05;
   bottom: -2rem;
+  pointer-events: none;
 }
 
 .day::after {
@@ -276,6 +277,11 @@ header {
 .muted {
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.next-timer {
+  font-weight: 600;
+  color: #f4f7f5;
 }
 
 .day [data-unlocked-copy] {
