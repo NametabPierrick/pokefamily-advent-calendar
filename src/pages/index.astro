@@ -22,8 +22,11 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
     pour voir les surprises qui se débloquent jour après jour.
   </p>
 
-  <div class="hero">
+  <div class="hero" data-total-days={TOTAL_DAYS}>
     <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
+    <p class="sub-countdown" data-next-countdown>
+      Chargement du prochain paquet…
+    </p>
   </div>
 
   <div class="card-grid">
@@ -66,16 +69,19 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
     const debugDate = parseDebugDate(debug);
     const baseDate = debugDate ?? new Date();
     const seasonYear = baseDate.getFullYear();
+    const baseMs = baseDate.getTime();
+    const startReal = Date.now();
+    const useDebug = !!debugDate;
+    const pad2 = (n) => String(n).padStart(2, "0");
+    const getNowMs = () =>
+      useDebug ? baseMs + (Date.now() - startReal) : Date.now();
+    const totalDays = Number(
+      document.querySelector("[data-total-days]")?.dataset.totalDays || 24,
+    );
 
     const countdownNode = document.querySelector("[data-countdown]");
     if (countdownNode) {
       const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
-      const baseMs = baseDate.getTime();
-      const startReal = Date.now();
-      const pad2 = (n) => String(n).padStart(2, "0");
-      const useDebug = !!debugDate;
-      const getNowMs = () =>
-        useDebug ? baseMs + (Date.now() - startReal) : Date.now();
       const fmt = (value, unit) =>
         `<span class="count-value">${value}</span><span class="count-unit">${unit}</span>`;
 
@@ -101,6 +107,61 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
 
       updateCountdown();
       setInterval(updateCountdown, 1000);
+    }
+
+    const nextCountdownNode = document.querySelector("[data-next-countdown]");
+    if (nextCountdownNode) {
+      const now = new Date(getNowMs());
+      const start = new Date(seasonYear, 11, 1);
+      const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
+
+      let openDay = 0;
+      if (now < start) {
+        openDay = 0;
+      } else if (now > end) {
+        openDay = totalDays;
+      } else if (now.getMonth() === 11) {
+        openDay = Math.min(totalDays, now.getDate());
+      }
+
+      const nextDay = openDay < totalDays ? openDay + 1 : null;
+      const nextTarget =
+        nextDay !== null
+          ? new Date(seasonYear, 11, nextDay, 0, 0, 0, 0).getTime()
+          : null;
+
+      const formatLabel = (days, hours, minutes, seconds) => {
+        const parts = [];
+        if (days > 0) parts.push(`${days}j`);
+        parts.push(`${pad2(hours)}h${pad2(minutes)}m${pad2(seconds)}s`);
+        return parts.join(" ");
+      };
+
+      const updateNextCountdown = () => {
+        if (nextTarget === null || nextDay === null) {
+          nextCountdownNode.textContent = "Tous les paquets sont ouverts !";
+          return;
+        }
+        const diff = nextTarget - getNowMs();
+        if (diff <= 0) {
+          nextCountdownNode.textContent = `Paquet numéro ${nextDay} prêt !`;
+          return;
+        }
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        nextCountdownNode.textContent = `${formatLabel(
+          days,
+          hours,
+          minutes,
+          seconds,
+        )} avant le paquet numéro ${nextDay}`;
+      };
+
+      updateNextCountdown();
+      setInterval(updateNextCountdown, 1000);
     }
   </script>
 </BaseLayout>

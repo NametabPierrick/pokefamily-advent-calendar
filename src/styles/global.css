@@ -369,6 +369,13 @@ header {
   margin-bottom: 0.15rem;
 }
 
+.sub-countdown {
+  margin: 0;
+  text-align: center;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
 .count-number {
   display: block;
   font-size: clamp(3rem, 4vw, 8rem);
