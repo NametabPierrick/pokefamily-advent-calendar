@@ -13,10 +13,10 @@ export const MEMBERS: AdventMember[] = [
   {
     id: 'diego',
     name: 'Diego',
-    setName: 'Guipure',
-    totalPages: 67,
-    imageDir: '/guipure',
-    imagePrefix: 'guipure-cropped_page-',
+    setName: 'Honeydukes',
+    totalPages: 85,
+    imageDir: '/honeyduke',
+    imagePrefix: 'honeydukes-cropped_page-',
     imagePadLength: 4
   },
   {
@@ -33,18 +33,18 @@ export const MEMBERS: AdventMember[] = [
     id: 'celine',
     name: 'Céline',
     setName: 'Les Trois Balais',
-    totalPages: 116,
+    totalPages: 106,
     imageDir: '/trois-balais',
-    imagePrefix: 'trois-balais_page-',
+    imagePrefix: 'trois-balais-cropped_page-',
     imagePadLength: 4
   },
   {
     id: 'pierrick',
     name: 'Pierrick',
-    setName: 'Honeydukes',
-    totalPages: 85,
-    imageDir: '/honeyduke',
-    imagePrefix: 'honeydukes-cropped_page-',
+    setName: 'Guipure',
+    totalPages: 67,
+    imageDir: '/guipure',
+    imagePrefix: 'guipure-cropped_page-',
     imagePadLength: 4
   }
 ];

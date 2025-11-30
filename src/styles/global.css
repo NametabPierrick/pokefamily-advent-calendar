@@ -125,7 +125,7 @@ header {
   background-image: var(--card-img, none);
   background-size: cover;
   background-position: center;
-  filter: blur(18px) brightness(0.35);
+  filter: blur(1px) brightness(0.5);
   transform: scale(1.05);
   z-index: 0;
   pointer-events: none;
@@ -137,19 +137,19 @@ header {
 }
 
 .card[data-member='diego'] {
-  --card-img: url('/img/guipure.jpg');
+  --card-img: url('/img/diego.jpg');
 }
 
 .card[data-member='vasco'] {
-  --card-img: url('/img/olivanders.jpg');
+  --card-img: url('/img/vasco.jpg');
 }
 
 .card[data-member='celine'] {
-  --card-img: url('/img/trois-balais.jpg');
+  --card-img: url('/img/celine.jpg');
 }
 
 .card[data-member='pierrick'] {
-  --card-img: url('/img/honeydukes.jpg');
+  --card-img: url('/img/pierrick.jpg');
 }
 
 .card:hover {
