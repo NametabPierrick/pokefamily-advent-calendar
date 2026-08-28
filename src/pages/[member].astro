@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { MEMBERS, TOTAL_DAYS, type AdventMember } from "../data/members";
-import { splitIntoDailyRanges, formatFrenchDate } from "../utils/calendar";
+import { formatFrenchDate } from "../utils/calendar";
 
 export function getStaticPaths() {
   return MEMBERS.map((member) => ({
@@ -15,13 +15,12 @@ type Props = {
 };
 
 const { member } = Astro.props as Props;
-const ranges = splitIntoDailyRanges(member.totalPages, TOTAL_DAYS);
 const currentYear = new Date().getFullYear();
 ---
 
 <BaseLayout
   title={`Calendrier de ${member.name}`}
-  description={`Pages quotidiennes pour ${member.setName}.`}
+  description={`Les surprises quotidiennes de ${member.name}.`}
 >
   <div data-page-root data-total-days={TOTAL_DAYS}>
     <a class="nav-back" href="/">← Retour aux choix</a>
@@ -43,29 +42,23 @@ const currentYear = new Date().getFullYear();
 
     <div class="days-grid">
       {
-        ranges.map((range) => {
+        member.days.map((adventDay) => {
           return (
             <div
               class="day"
-              id={`day-${range.day}`}
+              id={`day-${adventDay.day}`}
               data-day-card
-              data-day={range.day}
+              data-day={adventDay.day}
             >
               <div class="heading">
-                <strong>{range.day}</strong>
-                <span class="day-number-bg">{range.day}</span>
+                <strong>{adventDay.day}</strong>
+                <span class="day-number-bg">{adventDay.day}</span>
                 <span class="pill locked" data-pill aria-label="Verrouillé">
                   🔒
                 </span>
               </div>
-              {/* <div class="muted" data-date>
-                {formatFrenchDate(range.day, currentYear)}
-              </div> */}
-              {/* <p class="range">
-                Pages {range.startPage} → {range.endPage}
-              </p> */}
               <p class="muted" data-locked-copy>
-                Patience, attends le {formatFrenchDate(range.day, currentYear)}.
+                Patience, attends le {formatFrenchDate(adventDay.day, currentYear)}.
               </p>
               <p
                 class="muted next-timer"
@@ -78,13 +71,8 @@ const currentYear = new Date().getFullYear();
                   class="btn"
                   type="button"
                   data-open-lightbox
-                  data-start={range.startPage}
-                  data-end={range.endPage}
-                  data-member={member.id}
-                  data-dir={member.imageDir || ""}
-                  data-prefix={member.imagePrefix || "page-"}
-                  data-pad={member.imagePadLength || 3}
-                  aria-label={`Voir les pages ${range.startPage} à ${range.endPage}`}
+                  data-ranges={JSON.stringify(adventDay.ranges.map(({ imageDir, startPage, endPage }) => ({ imageDir, startPage, endPage })))}
+                  aria-label={`Voir les étapes LEGO du jour ${adventDay.day}`}
                 >
                   Voir les étapes
                 </button>
@@ -159,6 +147,8 @@ const currentYear = new Date().getFullYear();
       const baseMs = baseDate.getTime();
       const startReal = Date.now();
       const useDebug = !!debugDate;
+      // Preview mode: keep every Advent door open while reviewing the calendars.
+      const unlockAllDays = true;
       const getNowMs = () =>
         useDebug ? baseMs + (Date.now() - startReal) : Date.now();
       const pad2 = (n) => String(n).padStart(2, "0");
@@ -169,7 +159,9 @@ const currentYear = new Date().getFullYear();
       const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
 
       let openDay = 0;
-      if (now < start) {
+      if (unlockAllDays) {
+        openDay = totalDays;
+      } else if (now < start) {
         openDay = 0;
       } else if (now > end) {
         openDay = totalDays;
@@ -421,18 +413,14 @@ const currentYear = new Date().getFullYear();
 
       document.querySelectorAll("[data-open-lightbox]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const start = Number(btn.dataset.start);
-          const end = Number(btn.dataset.end);
-          const memberId = btn.dataset.member;
-          const dir = btn.dataset.dir || "";
-          const prefix = btn.dataset.prefix || "page-";
-          const padLength = Number(btn.dataset.pad || 3);
-          const pad = (n) => String(n).padStart(padLength, "0");
-          const baseDir = dir || `/pages/${memberId}`;
+          const ranges = JSON.parse(btn.dataset.ranges || "[]");
+          const pad = (n) => String(n).padStart(4, "0");
           const images = [];
-          for (let page = start; page <= end; page++) {
-            images.push(`${baseDir}/${prefix}${pad(page)}.jpg`);
-          }
+          ranges.forEach((range) => {
+            for (let page = range.startPage; page <= range.endPage; page++) {
+              images.push(`${range.imageDir}/page-${pad(page)}.jpg`);
+            }
+          });
           openLightbox(images);
         });
       });

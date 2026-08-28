@@ -1,6 +1,6 @@
 ## Pokefamily Advent Calendar (Astro)
 
-Astro site for a family  advent calendar. Each person has a dedicated page that unlocks their daily instruction pages based on real-world dates (1–24 décembre). Past days stay visible.
+Astro site for a family Advent calendar. Each person has a dedicated page that unlocks daily LEGO instruction pages based on real-world dates (1–24 décembre). Past days stay visible.
 
 ### Dev quickstart
 
@@ -11,23 +11,19 @@ npm run dev
 
 If you need to fake the date while developing, append `?debugDate=2024-12-05` (YYYY-MM-DD) to any member page URL.
 
-### Configure the  sets
+### Configure the calendars
 
 Edit `src/data/members.ts`:
-- `totalPages`: total number of instruction pages for that person.
-- `pdfUrl`: optional direct link to their PDF. When present, a secondary link opens the full PDF at the start page for the day via `#page=`.
-- `imageDir`: folder (under `public`) where you export per-page JPGs.
-- `imagePrefix`: optional file prefix (default `page-`).
-- `imagePadLength`: optional padding (default `3`).
-- `setName`: displayed under the person’s name.
+- `totalPieces`: total LEGO pieces allocated to that person.
+- `setName`: the set or combined builds shown on the selection screen.
+- `days`: the 24-day plan, including an estimated piece count and one or more instruction-page ranges.
 
-The split logic distributes pages as evenly as possible across 24 days; the earliest days receive any extra single pages.
+The 2026 schedules keep complete instruction steps together while distributing the piece counts as evenly as each model allows.
 
-### Using per-page JPGs (anti-spoiler)
-- Export each PDF page as JPG. Defaults: `page-001.jpg` (3-digit padding). You can override per member with `imagePrefix` (e.g. `guipure_page-`) and `imagePadLength` (e.g. `4`).
-- Place them in `public/<folder>/` and set `imageDir` accordingly (e.g. Diego → `public/guipure/guipure_page-0001.jpg` with `imageDir: '/guipure'`).
+### Using per-page JPGs
+- Export each selected PDF page as a four-digit JPG such as `page-0004.jpg`.
+- Place instruction sets in `public/instructions/<set>/` and reference that directory from each daily range.
 - The app only injects images for unlocked days (lazy), so kids ne peuvent pas deviner les pages futures sans ouvrir les fichiers directement.
-- Optional: remove `pdfUrl` if you don't want full-document access.
 
 ### Stack
 - Astro (static output)
