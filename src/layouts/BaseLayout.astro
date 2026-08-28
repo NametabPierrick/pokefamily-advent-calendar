@@ -25,6 +25,9 @@ const {
     <link rel="apple-touch-icon" href="/icons/advent-icon-192.png" />
   </head>
   <body>
+    <div class="christmas-lights" aria-hidden="true">
+      {Array.from({ length: 18 }, (_, index) => <i data-light={index % 4}></i>)}
+    </div>
     <div class="page-shell">
       <slot />
     </div>
