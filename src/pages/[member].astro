@@ -147,8 +147,6 @@ const currentYear = new Date().getFullYear();
       const baseMs = baseDate.getTime();
       const startReal = Date.now();
       const useDebug = !!debugDate;
-      // Preview mode: keep every Advent door open while reviewing the calendars.
-      const unlockAllDays = true;
       const getNowMs = () =>
         useDebug ? baseMs + (Date.now() - startReal) : Date.now();
       const pad2 = (n) => String(n).padStart(2, "0");
@@ -159,9 +157,7 @@ const currentYear = new Date().getFullYear();
       const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
 
       let openDay = 0;
-      if (unlockAllDays) {
-        openDay = totalDays;
-      } else if (now < start) {
+      if (now < start) {
         openDay = 0;
       } else if (now > end) {
         openDay = totalDays;
