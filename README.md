@@ -25,6 +25,12 @@ The 2026 schedules keep complete instruction steps together while distributing t
 - Place instruction sets in `public/instructions/<set>/` and reference that directory from each daily range.
 - The app only injects images for unlocked days (lazy), so kids ne peuvent pas deviner les pages futures sans ouvrir les fichiers directement.
 
+Keep original PDFs and discarded pages in the local, git-ignored `private-assets/` directory. Anything placed under `public/` is copied to the published site.
+
+Daily instruction paths are generated as separate JSON manifests and fetched only when an unlocked day is opened. The last viewed instruction is saved locally, and each new day gets a one-time confetti celebration.
+
+The site is installable as a PWA. Its service worker caches the app shell and only the instruction pages that have already been opened.
+
 ### Stack
 - Astro (static output)
 - Vanilla JS in Astro pages only where needed

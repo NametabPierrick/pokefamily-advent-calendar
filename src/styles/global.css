@@ -31,6 +31,36 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti-layer i {
+  --x: 50vw;
+  --delay: 0s;
+  --duration: 2.5s;
+  --drift: 0px;
+  --spin: 540deg;
+  position: absolute;
+  top: -24px;
+  left: var(--x);
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  animation: confetti-fall var(--duration) cubic-bezier(0.18, 0.72, 0.3, 1) var(--delay) forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translate3d(var(--drift), calc(100vh + 48px), 0) rotate(var(--spin));
+    opacity: 0.9;
+  }
+}
+
 a {
   color: inherit;
   text-decoration: none;

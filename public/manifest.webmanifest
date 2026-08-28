@@ -1,0 +1,25 @@
+{
+  "name": "Calendrier de l’avent de la Pokéfamily",
+  "short_name": "Pokéfamily",
+  "description": "Les surprises quotidiennes de la Pokéfamily.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c1416",
+  "theme_color": "#0c1416",
+  "icons": [
+    {
+      "src": "/icons/advent-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/advent-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

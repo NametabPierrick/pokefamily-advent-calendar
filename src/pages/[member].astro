@@ -22,7 +22,7 @@ const currentYear = new Date().getFullYear();
   title={`Calendrier de ${member.name}`}
   description={`Les surprises quotidiennes de ${member.name}.`}
 >
-  <div data-page-root data-total-days={TOTAL_DAYS}>
+  <div data-page-root data-total-days={TOTAL_DAYS} data-member={member.id}>
     <a class="nav-back" href="/">← Retour aux choix</a>
 
     <header>
@@ -71,7 +71,7 @@ const currentYear = new Date().getFullYear();
                   class="btn"
                   type="button"
                   data-open-lightbox
-                  data-ranges={JSON.stringify(adventDay.ranges.map(({ imageDir, startPage, endPage }) => ({ imageDir, startPage, endPage })))}
+                  data-day={adventDay.day}
                   aria-label={`Voir les étapes LEGO du jour ${adventDay.day}`}
                 >
                   Voir les étapes
@@ -121,6 +121,7 @@ const currentYear = new Date().getFullYear();
     <script>
       const root = document.querySelector("[data-page-root]");
       const totalDays = Number(root?.dataset.totalDays || 24);
+      const memberId = root?.dataset.member || "unknown";
       const search = new URLSearchParams(window.location.search);
       const debug = search.get("debugDate");
 
@@ -341,8 +342,9 @@ const currentYear = new Date().getFullYear();
       const prevBtn = lightbox?.querySelector("[data-prev]");
       const nextBtn = lightbox?.querySelector("[data-next]");
       let currentIndex = 0;
+      let currentProgressKey = "";
 
-      function openLightbox(images) {
+      function openLightbox(images, progressKey) {
         if (!lightbox || !slides) return;
         slides.innerHTML = "";
         images.forEach((src, idx) => {
@@ -356,7 +358,11 @@ const currentYear = new Date().getFullYear();
           frame.appendChild(img);
           slides.appendChild(frame);
         });
-        currentIndex = 0;
+        currentProgressKey = progressKey;
+        const savedIndex = Number(localStorage.getItem(progressKey));
+        currentIndex = Number.isInteger(savedIndex)
+          ? Math.min(Math.max(savedIndex, 0), Math.max(images.length - 1, 0))
+          : 0;
         updateSlides();
         if (titleNode) titleNode.textContent = "Instructions";
         lightbox.classList.add("is-open");
@@ -368,6 +374,7 @@ const currentYear = new Date().getFullYear();
         lightbox.classList.remove("is-open");
         document.body.style.overflow = "";
         slides.innerHTML = "";
+        currentProgressKey = "";
       }
 
       function updateSlides() {
@@ -378,6 +385,9 @@ const currentYear = new Date().getFullYear();
         });
         if (counter)
           counter.textContent = `Page ${currentIndex + 1} / ${frames.length}`;
+        if (currentProgressKey) {
+          localStorage.setItem(currentProgressKey, String(currentIndex));
+        }
         if (prevBtn) prevBtn.disabled = currentIndex === 0;
         if (nextBtn) nextBtn.disabled = currentIndex === frames.length - 1;
       }
@@ -407,17 +417,40 @@ const currentYear = new Date().getFullYear();
         ?.querySelectorAll("[data-close-lightbox]")
         .forEach((btn) => btn.addEventListener("click", closeLightbox));
 
+      function launchConfetti() {
+        const layer = document.createElement("div");
+        layer.className = "confetti-layer";
+        const colors = ["#d8c27f", "#4ca68a", "#f4f7f5", "#e76f51", "#b1f3d7"];
+        for (let index = 0; index < 70; index += 1) {
+          const piece = document.createElement("i");
+          piece.style.setProperty("--x", `${Math.random() * 100}vw`);
+          piece.style.setProperty("--delay", `${Math.random() * 0.45}s`);
+          piece.style.setProperty("--duration", `${1.8 + Math.random() * 1.5}s`);
+          piece.style.setProperty("--drift", `${-80 + Math.random() * 160}px`);
+          piece.style.setProperty("--spin", `${360 + Math.random() * 720}deg`);
+          piece.style.background = colors[index % colors.length];
+          layer.appendChild(piece);
+        }
+        document.body.appendChild(layer);
+        window.setTimeout(() => layer.remove(), 3800);
+      }
+
       document.querySelectorAll("[data-open-lightbox]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const ranges = JSON.parse(btn.dataset.ranges || "[]");
-          const pad = (n) => String(n).padStart(4, "0");
-          const images = [];
-          ranges.forEach((range) => {
-            for (let page = range.startPage; page <= range.endPage; page++) {
-              images.push(`${range.imageDir}/page-${pad(page)}.jpg`);
-            }
-          });
-          openLightbox(images);
+        btn.addEventListener("click", async () => {
+          const day = Number(btn.dataset.day);
+          if (!Number.isInteger(day)) return;
+
+          const openedKey = `advent:${memberId}:day:${day}:opened`;
+          if (!localStorage.getItem(openedKey)) {
+            localStorage.setItem(openedKey, "1");
+            launchConfetti();
+          }
+
+          const response = await fetch(`/daily/${memberId}/${day}.json`);
+          if (!response.ok) return;
+          const payload = await response.json();
+          const images = Array.isArray(payload.images) ? payload.images : [];
+          openLightbox(images, `advent:${memberId}:day:${day}:last-step`);
         });
       });
 

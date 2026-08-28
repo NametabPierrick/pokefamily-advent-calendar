@@ -19,10 +19,21 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0c1416" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/advent-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/advent-icon-192.png" />
   </head>
   <body>
     <div class="page-shell">
       <slot />
     </div>
+    <script is:inline>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
   </body>
 </html>
