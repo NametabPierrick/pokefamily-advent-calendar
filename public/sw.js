@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokefamily-advent-2026-v1";
+const CACHE_NAME = "pokefamily-advent-2026-v3";
 const APP_SHELL = [
   "/",
   "/diego/",
@@ -49,6 +49,28 @@ const networkFirst = async (request) => {
   }
 };
 
+const dailyNetworkFirst = async (request) => {
+  const url = new URL(request.url);
+  const cacheKey = new Request(`${url.origin}${url.pathname}`);
+  const cache = await caches.open(CACHE_NAME);
+
+  try {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response.ok) {
+      cache.put(cacheKey, response.clone());
+    }
+    return response;
+  } catch {
+    return (
+      (await cache.match(cacheKey)) ||
+      new Response(JSON.stringify({ images: [] }), {
+        status: 503,
+        headers: { "Content-Type": "application/json; charset=utf-8" },
+      })
+    );
+  }
+};
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -61,9 +83,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (url.pathname.startsWith("/daily/")) {
+    event.respondWith(dailyNetworkFirst(request));
+    return;
+  }
+
   if (
     url.pathname.startsWith("/instructions/") ||
-    url.pathname.startsWith("/daily/") ||
     url.pathname.startsWith("/_astro/") ||
     url.pathname.startsWith("/icons/")
   ) {

@@ -1,6 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { MEMBERS, TOTAL_DAYS } from "../data/members";
+import {
+  CALENDAR_START_DAY,
+  CALENDAR_START_MONTH,
+  CELEBRATION_DAY,
+  CELEBRATION_MONTH,
+} from "../utils/calendar";
 ---
 
 <BaseLayout
@@ -14,7 +20,7 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
         <h1>Calendrier de l'avent <br />de la Pokéfamily</h1>
       </div>
     </div>
-    <div class="badge">1 → {TOTAL_DAYS} décembre</div>
+    <div class="badge">25 novembre → 18 décembre</div>
   </header>
 
   <p class="intro">
@@ -22,7 +28,14 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
     pour voir les surprises qui se débloquent jour après jour.
   </p>
 
-  <div class="hero" data-total-days={TOTAL_DAYS}>
+  <div
+    class="hero"
+    data-total-days={TOTAL_DAYS}
+    data-start-month={CALENDAR_START_MONTH}
+    data-start-day={CALENDAR_START_DAY}
+    data-celebration-month={CELEBRATION_MONTH}
+    data-celebration-day={CELEBRATION_DAY}
+  >
     <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
     <p class="sub-countdown" data-next-countdown>
       Chargement du prochain paquet…
@@ -48,6 +61,14 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
   <script>
     const search = new URLSearchParams(window.location.search);
     const debug = search.get("debugDate");
+
+    if (debug) {
+      document.querySelectorAll("a[data-member]").forEach((link) => {
+        const target = new URL(link.href, window.location.origin);
+        target.searchParams.set("debugDate", debug);
+        link.href = `${target.pathname}${target.search}`;
+      });
+    }
 
     function parseDebugDate(value) {
       if (!value) return null;
@@ -78,10 +99,35 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
     const totalDays = Number(
       document.querySelector("[data-total-days]")?.dataset.totalDays || 24,
     );
+    const hero = document.querySelector("[data-total-days]");
+    const startMonth = Number(hero?.dataset.startMonth ?? 10);
+    const startDay = Number(hero?.dataset.startDay ?? 25);
+    const celebrationMonth = Number(hero?.dataset.celebrationMonth ?? 11);
+    const celebrationDay = Number(hero?.dataset.celebrationDay ?? 18);
+    const start = new Date(seasonYear, startMonth, startDay);
+    const end = new Date(
+      seasonYear,
+      celebrationMonth,
+      celebrationDay,
+      23,
+      59,
+      59,
+      999,
+    );
+    const dateForDay = (day) =>
+      new Date(seasonYear, startMonth, startDay + day - 1);
 
     const countdownNode = document.querySelector("[data-countdown]");
     if (countdownNode) {
-      const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
+      const target = new Date(
+        seasonYear,
+        celebrationMonth,
+        celebrationDay,
+        0,
+        0,
+        0,
+        0,
+      ).getTime();
       const fmt = (value, unit) =>
         `<span class="count-value">${value}</span><span class="count-unit">${unit}</span>`;
 
@@ -89,7 +135,7 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
         const nowMs = getNowMs();
         const diff = target - nowMs;
         if (diff <= 0) {
-          countdownNode.innerHTML = `<span class="count-number">Joyeux Noël !</span>`;
+          countdownNode.innerHTML = `<span class="count-number">Joyeux Noël la Pokéfamily !</span>`;
           return;
         }
         const totalSeconds = Math.floor(diff / 1000);
@@ -101,7 +147,7 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
           <span class="count-number">
             ${fmt(days, "j")} ${fmt(pad2(hours), "h")} ${fmt(pad2(minutes), "m")} ${fmt(pad2(seconds), "s")}
           </span>
-          <span class="count-label">avant Noël</span>
+          <span class="count-label">avant le Noël de la Pokéfamily</span>
         `;
       };
 
@@ -112,22 +158,23 @@ import { MEMBERS, TOTAL_DAYS } from "../data/members";
     const nextCountdownNode = document.querySelector("[data-next-countdown]");
     if (nextCountdownNode) {
       const now = new Date(getNowMs());
-      const start = new Date(seasonYear, 11, 1);
-      const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
-
       let openDay = 0;
       if (now < start) {
         openDay = 0;
       } else if (now > end) {
         openDay = totalDays;
-      } else if (now.getMonth() === 11) {
-        openDay = Math.min(totalDays, now.getDate());
+      } else {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        openDay = Math.min(
+          totalDays,
+          Math.round((today.getTime() - start.getTime()) / 86_400_000) + 1,
+        );
       }
 
       const nextDay = openDay < totalDays ? openDay + 1 : null;
       const nextTarget =
         nextDay !== null
-          ? new Date(seasonYear, 11, nextDay, 0, 0, 0, 0).getTime()
+          ? dateForDay(nextDay).getTime()
           : null;
 
       const formatLabel = (days, hours, minutes, seconds) => {

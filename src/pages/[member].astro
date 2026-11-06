@@ -1,7 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { MEMBERS, TOTAL_DAYS, type AdventMember } from "../data/members";
-import { formatFrenchDate } from "../utils/calendar";
+import {
+  CALENDAR_START_DAY,
+  CALENDAR_START_MONTH,
+  CELEBRATION_DAY,
+  CELEBRATION_MONTH,
+  formatFrenchDate,
+} from "../utils/calendar";
 
 export function getStaticPaths() {
   return MEMBERS.map((member) => ({
@@ -22,8 +28,16 @@ const currentYear = new Date().getFullYear();
   title={`Calendrier de ${member.name}`}
   description={`Les surprises quotidiennes de ${member.name}.`}
 >
-  <div data-page-root data-total-days={TOTAL_DAYS} data-member={member.id}>
-    <a class="nav-back" href="/">← Retour aux choix</a>
+  <div
+    data-page-root
+    data-total-days={TOTAL_DAYS}
+    data-member={member.id}
+    data-start-month={CALENDAR_START_MONTH}
+    data-start-day={CALENDAR_START_DAY}
+    data-celebration-month={CELEBRATION_MONTH}
+    data-celebration-day={CELEBRATION_DAY}
+  >
+    <a class="nav-back" href="/" data-preserve-debug>← Retour aux choix</a>
 
     <header>
       <div class="brand">
@@ -36,7 +50,7 @@ const currentYear = new Date().getFullYear();
 
     <div class="hero">
       <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
-      <!-- Astuce dev: ajouter ?debugDate=2025-12-05 ou &showDebug=1 pour tester les jours et voir le panneau debug. -->
+      <!-- Astuce dev: ajouter ?debugDate=2026-11-25 pour simuler une date du calendrier. -->
       <div class="notice" data-debug-panel style="display: none;"></div>
     </div>
 
@@ -50,6 +64,9 @@ const currentYear = new Date().getFullYear();
               data-day-card
               data-day={adventDay.day}
             >
+              <p class="day-date" data-date>
+                {formatFrenchDate(adventDay.day, currentYear)}
+              </p>
               <div class="heading">
                 <strong>{adventDay.day}</strong>
                 <span class="day-number-bg">{adventDay.day}</span>
@@ -58,7 +75,7 @@ const currentYear = new Date().getFullYear();
                 </span>
               </div>
               <p class="muted" data-locked-copy>
-                Patience, attends le {formatFrenchDate(adventDay.day, currentYear)}.
+                Patience, attends encore un peu.
               </p>
               <p
                 class="muted next-timer"
@@ -122,8 +139,20 @@ const currentYear = new Date().getFullYear();
       const root = document.querySelector("[data-page-root]");
       const totalDays = Number(root?.dataset.totalDays || 24);
       const memberId = root?.dataset.member || "unknown";
+      const startMonth = Number(root?.dataset.startMonth ?? 10);
+      const startDay = Number(root?.dataset.startDay ?? 25);
+      const celebrationMonth = Number(root?.dataset.celebrationMonth ?? 11);
+      const celebrationDay = Number(root?.dataset.celebrationDay ?? 18);
       const search = new URLSearchParams(window.location.search);
       const debug = search.get("debugDate");
+
+      if (debug) {
+        document.querySelectorAll("[data-preserve-debug]").forEach((link) => {
+          const target = new URL(link.href, window.location.origin);
+          target.searchParams.set("debugDate", debug);
+          link.href = `${target.pathname}${target.search}`;
+        });
+      }
 
       function parseDebugDate(value) {
         if (!value) return null;
@@ -154,16 +183,30 @@ const currentYear = new Date().getFullYear();
 
       const now = new Date(getNowMs());
       const seasonYear = now.getFullYear();
-      const start = new Date(seasonYear, 11, 1);
-      const end = new Date(seasonYear, 11, totalDays, 23, 59, 59, 999);
+      const start = new Date(seasonYear, startMonth, startDay);
+      const end = new Date(
+        seasonYear,
+        celebrationMonth,
+        celebrationDay,
+        23,
+        59,
+        59,
+        999,
+      );
+      const dateForDay = (day) =>
+        new Date(seasonYear, startMonth, startDay + day - 1);
 
       let openDay = 0;
       if (now < start) {
         openDay = 0;
       } else if (now > end) {
         openDay = totalDays;
-      } else if (now.getMonth() === 11) {
-        openDay = Math.min(totalDays, now.getDate());
+      } else {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        openDay = Math.min(
+          totalDays,
+          Math.round((today.getTime() - start.getTime()) / 86_400_000) + 1,
+        );
       }
 
       const badge = document.querySelector("[data-badge]");
@@ -172,7 +215,7 @@ const currentYear = new Date().getFullYear();
         const label =
           openDay > 0
             ? `Jour ${openDay}/${totalDays}`
-            : "En attente du 1er décembre";
+            : "En attente du 25 novembre";
         badge.textContent = isDebug ? `${label} (debug)` : label;
       }
 
@@ -210,19 +253,27 @@ const currentYear = new Date().getFullYear();
       const nextDay = openDay < totalDays ? openDay + 1 : null;
       const nextTarget =
         nextDay !== null
-          ? new Date(seasonYear, 11, nextDay, 0, 0, 0, 0).getTime()
+          ? dateForDay(nextDay).getTime()
           : null;
 
-      // Live countdown until 25 Dec (days + HH:MM:SS), based on actual clock or debugDate baseline.
+      // Live countdown until the family celebration on 18 Dec.
       const countdownNode = document.querySelector("[data-countdown]");
       if (countdownNode) {
-        const target = new Date(seasonYear, 11, 25, 0, 0, 0, 0).getTime();
+        const target = new Date(
+          seasonYear,
+          celebrationMonth,
+          celebrationDay,
+          0,
+          0,
+          0,
+          0,
+        ).getTime();
 
         const updateCountdown = () => {
           const nowMs = getNowMs();
           const diff = target - nowMs;
           if (diff <= 0) {
-            countdownNode.innerHTML = `<span class="count-number">Joyeux Noël !</span>`;
+            countdownNode.innerHTML = `<span class="count-number">Joyeux Noël la Pokéfamily !</span>`;
             return;
           }
           const totalSeconds = Math.floor(diff / 1000);
@@ -236,7 +287,7 @@ const currentYear = new Date().getFullYear();
             <span class="count-number">
               ${fmt(days, "j")} ${fmt(pad2(hours), "h")} ${fmt(pad2(minutes), "m")} ${fmt(pad2(seconds), "s")}
             </span>
-            <span class="count-label">avant Noël 🎄🎁✨</span>
+            <span class="count-label">avant le Noël de la Pokéfamily 🎄🎁✨</span>
           `;
         };
         updateCountdown();
@@ -249,7 +300,7 @@ const currentYear = new Date().getFullYear();
         if (openDay < totalDays) {
           const nextDay = openDay + 1;
           const targetDate =
-            now < start ? start : new Date(seasonYear, 11, nextDay, 0, 0, 0, 0);
+            now < start ? start : dateForDay(nextDay);
           targetNext = targetDate.getTime();
         }
 
@@ -281,7 +332,7 @@ const currentYear = new Date().getFullYear();
         const dateNode = card.querySelector("[data-date]");
         if (dateNode) {
           dateNode.textContent = formatter.format(
-            new Date(seasonYear, 11, day),
+            dateForDay(day),
           );
         }
 
@@ -342,9 +393,8 @@ const currentYear = new Date().getFullYear();
       const prevBtn = lightbox?.querySelector("[data-prev]");
       const nextBtn = lightbox?.querySelector("[data-next]");
       let currentIndex = 0;
-      let currentProgressKey = "";
 
-      function openLightbox(images, progressKey) {
+      function openLightbox(images) {
         if (!lightbox || !slides) return;
         slides.innerHTML = "";
         images.forEach((src, idx) => {
@@ -353,16 +403,22 @@ const currentYear = new Date().getFullYear();
           img.decoding = "async";
           img.src = src;
           img.alt = `Page ${idx + 1}`;
+          const media = document.createElement("div");
+          media.className = "instruction-media";
+          if (src.endsWith("/8201-mater/page-0003.jpg")) {
+            media.classList.add("mask-mater-preview");
+            const mask = document.createElement("span");
+            mask.className = "spoiler-mask";
+            mask.setAttribute("aria-hidden", "true");
+            media.appendChild(mask);
+          }
+          media.appendChild(img);
           const frame = document.createElement("div");
           frame.className = "slide";
-          frame.appendChild(img);
+          frame.appendChild(media);
           slides.appendChild(frame);
         });
-        currentProgressKey = progressKey;
-        const savedIndex = Number(localStorage.getItem(progressKey));
-        currentIndex = Number.isInteger(savedIndex)
-          ? Math.min(Math.max(savedIndex, 0), Math.max(images.length - 1, 0))
-          : 0;
+        currentIndex = 0;
         updateSlides();
         if (titleNode) titleNode.textContent = "Instructions";
         lightbox.classList.add("is-open");
@@ -374,7 +430,6 @@ const currentYear = new Date().getFullYear();
         lightbox.classList.remove("is-open");
         document.body.style.overflow = "";
         slides.innerHTML = "";
-        currentProgressKey = "";
       }
 
       function updateSlides() {
@@ -385,9 +440,6 @@ const currentYear = new Date().getFullYear();
         });
         if (counter)
           counter.textContent = `Page ${currentIndex + 1} / ${frames.length}`;
-        if (currentProgressKey) {
-          localStorage.setItem(currentProgressKey, String(currentIndex));
-        }
         if (prevBtn) prevBtn.disabled = currentIndex === 0;
         if (nextBtn) nextBtn.disabled = currentIndex === frames.length - 1;
       }
@@ -446,11 +498,14 @@ const currentYear = new Date().getFullYear();
             launchConfetti();
           }
 
-          const response = await fetch(`/daily/${memberId}/${day}.json`);
+          const response = await fetch(
+            `/daily/${memberId}/${day}.json?fresh=${Date.now()}`,
+            { cache: "no-store" },
+          );
           if (!response.ok) return;
           const payload = await response.json();
           const images = Array.isArray(payload.images) ? payload.images : [];
-          openLightbox(images, `advent:${memberId}:day:${day}:last-step`);
+          openLightbox(images);
         });
       });
 

@@ -73,27 +73,14 @@ const combinePlans = (...plans: AdventDay[][]): AdventDay[] =>
   plans.flat().map((day, index) => ({ ...day, day: index + 1 }));
 
 const quidditch = plan('Quality Quidditch Supplies', '/instructions/76452-quidditch', [
-  [4, 9, 40], [10, 15, 34], [16, 26, 34], [27, 35, 36], [36, 42, 34],
-  [43, 48, 32], [49, 53, 36], [54, 61, 31], [62, 68, 36, [67]], [69, 77, 35],
+  [3, 9, 40], [10, 15, 34], [16, 26, 34], [27, 35, 36], [36, 42, 34],
+  [43, 48, 32], [49, 53, 36], [54, 61, 31], [62, 68, 36], [69, 77, 35],
   [78, 84, 31], [85, 93, 34]
 ]);
 
-const weasleysSecondary = plan('La boutique secondaire des Weasley', '/instructions/76422-weasleys/small building', [
-  [7, 14, 29], [15, 22, 35, [18]], [23, 29, 32], [30, 37, 31]
-]);
-
-const weasleysMain = plan('Weasley, Farces pour sorciers facétieux', '/instructions/76422-weasleys/big building', [
-  [39, 44, 30], [45, 50, 28], [51, 55, 29], [56, 61, 29], [62, 68, 37, [64]],
-  [69, 75, 28, [73]], [76, 81, 24], [82, 86, 27], [87, 92, 30], [93, 98, 31],
-  [99, 104, 31], [105, 110, 31], [111, 115, 26], [116, 121, 24], [122, 127, 30],
-  [128, 133, 30], [134, 138, 31], [139, 144, 31], [145, 151, 33, [148]],
-  [152, 157, 32], [158, 163, 30], [164, 169, 30, [166]], [170, 175, 28],
-  [176, 181, 27]
-]);
-
 const owlery = plan('La volière du château de Poudlard', '/instructions/76430-owlery', [
-  [5, 19, 29], [20, 27, 29], [28, 37, 30], [38, 47, 30, [44]], [48, 55, 33],
-  [56, 65, 31], [66, 72, 35, [68]], [73, 79, 30], [80, 89, 32], [90, 93, 31],
+  [4, 19, 29], [20, 27, 29], [28, 37, 30], [38, 47, 30], [48, 55, 33],
+  [56, 65, 31], [66, 72, 35], [73, 79, 30], [80, 89, 32], [90, 93, 31],
   [94, 96, 28], [97, 102, 26]
 ]);
 
@@ -103,43 +90,58 @@ const batmobile = plan('La Batmobile : poursuite avec le Pingouin', '/instructio
 ]);
 
 const herbology = plan('Le cours de botanique du château de Poudlard', '/instructions/76445-herbology', [
-  [6, 10, 33], [11, 19, 32, [16]], [20, 30, 33], [31, 35, 32], [36, 48, 32],
-  [49, 60, 32, [52]], [61, 67, 31], [68, 76, 33], [77, 90, 32, [88, 89]],
+  [5, 10, 33], [11, 19, 32, [16]], [20, 30, 33], [31, 35, 32], [36, 48, 32],
+  [49, 60, 32, [52]], [61, 67, 31], [68, 76, 33], [77, 90, 32, [88]],
   [91, 96, 34], [97, 105, 32], [106, 116, 34]
 ]);
 
 const iceCream = plan('Le glacier de Florean Fortescue', '/instructions/76452-ice-cream', [
-  [8, 12, 32], [13, 16, 36], [17, 21, 32], [22, 26, 29], [27, 30, 30],
-  [31, 36, 33], [37, 42, 33, [40]], [43, 46, 33], [47, 54, 29],
-  [55, 62, 31, [56]], [63, 69, 32], [70, 76, 32]
+  [7, 12, 30], [13, 17, 30], [18, 22, 30], [23, 27, 30], [28, 32, 30],
+  [33, 38, 29], [39, 44, 29], [45, 49, 29], [50, 54, 29],
+  [55, 60, 29], [61, 65, 29], [66, 70, 29], [71, 76, 29]
 ]);
 
 const lightningMcQueen = plan('Flash McQueen', '/instructions/77255-lightning-mcqueen', [
-  [8, 17, 33], [18, 28, 33], [29, 36, 33], [37, 50, 34],
-  [51, 66, 35], [67, 77, 34], [78, 89, 34], [90, 100, 34]
+  [8, 17, 30], [18, 28, 30], [29, 39, 30], [40, 50, 30], [51, 61, 30],
+  [62, 71, 30], [72, 81, 30], [82, 90, 30], [91, 100, 30]
+]);
+
+const mater = plan('Martin', '/instructions/8201-mater', [
+  [3, 11, 26], [12, 20, 26]
+]);
+
+const charmsClass = plan('Le cours de sortilèges de Poudlard', '/instructions/76385-charms-class', [
+  [7, 15, 32], [16, 24, 32], [25, 34, 32], [36, 44, 32],
+  [45, 52, 32], [53, 60, 32], [61, 68, 32], [69, 76, 32]
+]);
+
+const gingerbreadHouse = plan('La maison en pain d’épices festive', '/instructions/40809-gingerbread-house', [
+  [3, 14, 42], [15, 25, 42], [26, 37, 42, [32]], [38, 49, 42, [48]],
+  [50, 60, 42], [61, 71, 42], [72, 83, 41, [79]], [84, 94, 41],
+  [95, 106, 41, [105]], [107, 117, 41], [118, 129, 41, [125]], [130, 140, 41]
 ]);
 
 export const MEMBERS: AdventMember[] = [
   {
     id: 'diego',
     name: 'Diego',
-    setName: 'Le glacier, boutique des Weasley & Flash McQueen',
-    totalPieces: 779,
-    days: combinePlans(iceCream, weasleysSecondary, lightningMcQueen)
+    setName: 'Le glacier, Martin & Flash McQueen',
+    totalPieces: 704,
+    days: combinePlans(iceCream, mater, lightningMcQueen)
   },
   {
     id: 'vasco',
     name: 'Vasco',
-    setName: 'Quidditch & la volière',
-    totalPieces: 777,
-    days: combinePlans(quidditch, owlery)
+    setName: 'Quidditch & le cours de botanique',
+    totalPieces: 803,
+    days: combinePlans(quidditch, herbology)
   },
   {
     id: 'celine',
     name: 'Céline',
-    setName: 'Weasley, Farces pour sorciers facétieux',
-    totalPieces: 707,
-    days: weasleysMain
+    setName: 'La volière & la maison en pain d’épices',
+    totalPieces: 862,
+    days: combinePlans(owlery, gingerbreadHouse)
   },
   {
     id: 'pierrick',

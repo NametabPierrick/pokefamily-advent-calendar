@@ -438,6 +438,14 @@ header {
   margin-bottom: 2rem;
 }
 
+.day-date {
+  margin: 0 0 0.35rem;
+  color: var(--gold);
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
 .pill {
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
@@ -713,10 +721,45 @@ header {
   opacity: 1;
 }
 
+.instruction-media {
+  position: relative;
+  display: inline-grid;
+  width: fit-content;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .lightbox__slides img {
+  display: block;
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+.spoiler-mask {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 38%;
+  height: 39%;
+  border-radius: 0 0 12px 0;
+  background:
+    radial-gradient(circle at 30% 34%, rgba(240, 212, 133, 0.18), transparent 36%),
+    linear-gradient(145deg, #10231f, #152f29);
+  box-shadow: inset -1px -1px 0 rgba(240, 212, 133, 0.24);
+}
+
+.spoiler-mask::after {
+  content: '✦ SURPRISE ✦';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(240, 212, 133, 0.8);
+  font-size: clamp(0.7rem, 1.5vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
 }
 
 .lightbox__footer {

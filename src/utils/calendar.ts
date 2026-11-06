@@ -1,5 +1,10 @@
 import { TOTAL_DAYS } from '../data/members';
 
+export const CALENDAR_START_MONTH = 10;
+export const CALENDAR_START_DAY = 25;
+export const CELEBRATION_MONTH = 11;
+export const CELEBRATION_DAY = 18;
+
 export type DayRange = {
   day: number;
   startPage: number;
@@ -26,18 +31,22 @@ export function splitIntoDailyRanges(totalPages: number, days: number = TOTAL_DA
 
 export function getSeasonDates(reference: Date = new Date()) {
   const year = reference.getFullYear();
-  const startDate = new Date(year, 11, 1);
-  const endDate = new Date(year, 11, TOTAL_DAYS, 23, 59, 59, 999);
+  const startDate = new Date(year, CALENDAR_START_MONTH, CALENDAR_START_DAY);
+  const endDate = new Date(year, CELEBRATION_MONTH, CELEBRATION_DAY, 23, 59, 59, 999);
   return { startDate, endDate, year };
 }
 
 export function getOpenDayNumber(now: Date, startDate: Date, endDate: Date, days: number = TOTAL_DAYS): number {
   if (now < startDate) return 0;
   if (now > endDate) return days;
-  if (now.getMonth() !== 11) return 0;
-  return Math.min(days, now.getDate());
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const elapsedDays = Math.round((today.getTime() - start.getTime()) / 86_400_000);
+  return Math.min(days, elapsedDays + 1);
 }
 
 export function formatFrenchDate(day: number, year: number) {
-  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' }).format(new Date(year, 11, day));
+  const date = new Date(year, CALENDAR_START_MONTH, CALENDAR_START_DAY + day - 1);
+  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' }).format(date);
 }
