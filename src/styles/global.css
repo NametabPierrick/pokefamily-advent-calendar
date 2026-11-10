@@ -804,8 +804,10 @@ header {
 }
 
 @media (max-width: 640px) {
-  .christmas-lights i:nth-child(even) {
-    display: none;
+  .christmas-lights i {
+    top: 17px;
+    width: 7px;
+    height: 12px;
   }
 
   .page-shell {
