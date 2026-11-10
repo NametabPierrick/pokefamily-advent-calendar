@@ -51,14 +51,16 @@ body::after {
 
 body::before {
   z-index: 0;
-  opacity: 0.42;
+  opacity: 0.38;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.82) 0 1px, transparent 1.5px),
-    radial-gradient(circle, rgba(240, 212, 133, 0.5) 0 1px, transparent 1.8px),
-    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1.5px, transparent 2px);
-  background-size: 78px 78px, 113px 113px, 166px 166px;
-  background-position: 12px -18px, 38px 9px, 86px 40px;
-  animation: gentle-snow 28s linear infinite;
+    radial-gradient(circle at 23% 17%, rgba(255, 255, 255, 0.82) 0 0.9px, transparent 1.5px),
+    radial-gradient(circle at 71% 36%, rgba(240, 212, 133, 0.42) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 38% 79%, rgba(255, 255, 255, 0.5) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 84% 62%, rgba(255, 255, 255, 0.38) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 12% 48%, rgba(240, 212, 133, 0.34) 0 1.1px, transparent 1.9px);
+  background-size: 67px 97px, 109px 151px, 173px 233px, 251px 181px, 347px 283px;
+  background-position: 11px -23px, -37px 17px, 73px -71px, -89px 53px, 149px -109px;
+  animation: gentle-snow 34s linear infinite;
 }
 
 body::after {
@@ -68,7 +70,7 @@ body::after {
 
 @keyframes gentle-snow {
   to {
-    background-position: 30px 294px, 6px 235px, 130px 372px;
+    background-position: 78px 365px, -146px 470px, 246px 395px, 162px 596px, -198px 457px;
   }
 }
 
