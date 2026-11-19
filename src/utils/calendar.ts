@@ -1,9 +1,9 @@
 import { TOTAL_DAYS } from '../data/members';
 
 export const CALENDAR_START_MONTH = 10;
-export const CALENDAR_START_DAY = 25;
+export const CALENDAR_START_DAY = 19;
 export const CELEBRATION_MONTH = 11;
-export const CELEBRATION_DAY = 18;
+export const CELEBRATION_DAY = 12;
 
 export type DayRange = {
   day: number;

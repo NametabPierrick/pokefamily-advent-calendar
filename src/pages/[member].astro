@@ -50,7 +50,7 @@ const currentYear = new Date().getFullYear();
 
     <div class="hero">
       <h2 class="countdown" data-countdown>Noël approche à grand pas !</h2>
-      <!-- Astuce dev: ajouter ?debugDate=2026-11-25 pour simuler une date du calendrier. -->
+      <!-- Astuce dev: ajouter ?debugDate=2026-11-19 pour simuler une date du calendrier. -->
       <div class="notice" data-debug-panel style="display: none;"></div>
     </div>
 
@@ -140,9 +140,9 @@ const currentYear = new Date().getFullYear();
       const totalDays = Number(root?.dataset.totalDays || 24);
       const memberId = root?.dataset.member || "unknown";
       const startMonth = Number(root?.dataset.startMonth ?? 10);
-      const startDay = Number(root?.dataset.startDay ?? 25);
+      const startDay = Number(root?.dataset.startDay ?? 19);
       const celebrationMonth = Number(root?.dataset.celebrationMonth ?? 11);
-      const celebrationDay = Number(root?.dataset.celebrationDay ?? 18);
+      const celebrationDay = Number(root?.dataset.celebrationDay ?? 12);
       const search = new URLSearchParams(window.location.search);
       const debug = search.get("debugDate");
 
@@ -215,7 +215,7 @@ const currentYear = new Date().getFullYear();
         const label =
           openDay > 0
             ? `Jour ${openDay}/${totalDays}`
-            : "En attente du 25 novembre";
+            : "En attente du 19 novembre";
         badge.textContent = isDebug ? `${label} (debug)` : label;
       }
 
@@ -256,7 +256,7 @@ const currentYear = new Date().getFullYear();
           ? dateForDay(nextDay).getTime()
           : null;
 
-      // Live countdown until the family celebration on 18 Dec.
+      // Live countdown until the family celebration on 12 Dec.
       const countdownNode = document.querySelector("[data-countdown]");
       if (countdownNode) {
         const target = new Date(

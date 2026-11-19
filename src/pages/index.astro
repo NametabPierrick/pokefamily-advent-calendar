@@ -22,7 +22,7 @@ const visibleMembers = MEMBERS.filter((member) => member.id !== "pierrick");
         <h1>Calendrier de l'avent <br />de la Pokéfamily</h1>
       </div>
     </div>
-    <div class="badge">25 novembre → 18 décembre</div>
+    <div class="badge">19 novembre → 12 décembre</div>
   </header>
 
   <p class="intro">
@@ -103,9 +103,9 @@ const visibleMembers = MEMBERS.filter((member) => member.id !== "pierrick");
     );
     const hero = document.querySelector("[data-total-days]");
     const startMonth = Number(hero?.dataset.startMonth ?? 10);
-    const startDay = Number(hero?.dataset.startDay ?? 25);
+    const startDay = Number(hero?.dataset.startDay ?? 19);
     const celebrationMonth = Number(hero?.dataset.celebrationMonth ?? 11);
-    const celebrationDay = Number(hero?.dataset.celebrationDay ?? 18);
+    const celebrationDay = Number(hero?.dataset.celebrationDay ?? 12);
     const start = new Date(seasonYear, startMonth, startDay);
     const end = new Date(
       seasonYear,
