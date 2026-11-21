@@ -10,6 +10,12 @@ const {
   title = "Calendrier de l'avent",
   description = "Calendrier de l'avent",
 } = Astro.props;
+
+const deploymentDate = new Intl.DateTimeFormat("fr-FR", {
+  dateStyle: "long",
+  timeStyle: "short",
+  timeZone: "Europe/Paris",
+}).format(new Date());
 ---
 
 <!doctype html>
@@ -31,6 +37,9 @@ const {
     <div class="page-shell">
       <slot />
     </div>
+    <footer class="site-footer">
+      <span>Mise à jour : {deploymentDate}</span>
+    </footer>
     <script is:inline>
       if ("serviceWorker" in navigator) {
         const reloadKey = "advent-sw-v4-reloaded";

@@ -639,6 +639,16 @@ header {
   font-size: 0.95rem;
 }
 
+.site-footer {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 2rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: center;
+  opacity: 0.72;
+}
+
 .page-images {
   display: grid;
   gap: 0.6rem;
