@@ -33,8 +33,19 @@ const {
     </div>
     <script is:inline>
       if ("serviceWorker" in navigator) {
+        const reloadKey = "advent-sw-v4-reloaded";
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (sessionStorage.getItem(reloadKey)) return;
+          sessionStorage.setItem(reloadKey, "1");
+          window.location.reload();
+        });
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
+          navigator.serviceWorker
+            .register("/sw.js?v=4", { updateViaCache: "none" })
+            .then((registration) => registration.update())
+            .catch(() => {
+              // The calendar remains usable online if offline support is unavailable.
+            });
         });
       }
     </script>

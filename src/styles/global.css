@@ -726,9 +726,33 @@ header {
 .instruction-media {
   position: relative;
   display: inline-grid;
+  place-items: center;
   width: fit-content;
+  min-width: min(280px, 75vw);
+  min-height: min(280px, 45vh);
   max-width: 100%;
   max-height: 100%;
+}
+
+.instruction-loading {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.instruction-media.is-loading .instruction-loading,
+.instruction-media.has-error .instruction-loading {
+  display: grid;
+}
+
+.instruction-media.is-loading img,
+.instruction-media.has-error img {
+  visibility: hidden;
 }
 
 .lightbox__slides img {

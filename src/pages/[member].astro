@@ -394,17 +394,36 @@ const currentYear = new Date().getFullYear();
       const nextBtn = lightbox?.querySelector("[data-next]");
       let currentIndex = 0;
 
+      function loadSlide(index) {
+        if (!slides || index < 0 || index >= slides.children.length) return;
+        const frame = slides.children[index];
+        const img = frame.querySelector("img[data-src]");
+        if (!img || img.getAttribute("src")) return;
+        img.setAttribute("src", img.dataset.src || "");
+      }
+
       function openLightbox(images) {
         if (!lightbox || !slides) return;
         slides.innerHTML = "";
         images.forEach((src, idx) => {
           const img = document.createElement("img");
-          img.loading = "eager";
           img.decoding = "async";
-          img.src = src;
+          img.dataset.src = `${src}${src.includes("?") ? "&" : "?"}v=4`;
           img.alt = `Page ${idx + 1}`;
           const media = document.createElement("div");
-          media.className = "instruction-media";
+          media.className = "instruction-media is-loading";
+          const loading = document.createElement("span");
+          loading.className = "instruction-loading";
+          loading.textContent = "Chargement…";
+          media.appendChild(loading);
+          img.addEventListener("load", () => {
+            media.classList.remove("is-loading", "has-error");
+          });
+          img.addEventListener("error", () => {
+            media.classList.remove("is-loading");
+            media.classList.add("has-error");
+            loading.textContent = "Impossible de charger cette page.";
+          });
           if (src.endsWith("/8201-mater/page-0003.jpg")) {
             media.classList.add("mask-mater-preview");
             const mask = document.createElement("span");
@@ -419,10 +438,10 @@ const currentYear = new Date().getFullYear();
           slides.appendChild(frame);
         });
         currentIndex = 0;
-        updateSlides();
         if (titleNode) titleNode.textContent = "Instructions";
         lightbox.classList.add("is-open");
         document.body.style.overflow = "hidden";
+        updateSlides();
       }
 
       function closeLightbox() {
@@ -438,6 +457,8 @@ const currentYear = new Date().getFullYear();
         frames.forEach((node, idx) => {
           node.classList.toggle("active", idx === currentIndex);
         });
+        loadSlide(currentIndex);
+        loadSlide(currentIndex + 1);
         if (counter)
           counter.textContent = `Page ${currentIndex + 1} / ${frames.length}`;
         if (prevBtn) prevBtn.disabled = currentIndex === 0;
